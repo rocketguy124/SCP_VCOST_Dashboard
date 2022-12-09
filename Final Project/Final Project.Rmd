@@ -1,0 +1,1022 @@
+---
+title: "Final Project"
+output: html_notebook
+---
+
+
+```{r}
+#Libraries to Load in
+library(shinydashboard)
+library(shiny)
+library(ggplot2)
+library(plotly)
+library(DT)
+```
+
+
+>Final Dashboard Code
+
+```{r}
+ui <- dashboardPage(
+  skin = "red",
+  dashboardHeader(title = "Final Project Dashboard"),
+  
+  ## Sidebar content
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem(" Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem(" Right Hand Movement", tabName = "RightHandMovement", icon = icon("hand-point-right")),
+      menuItem(" Head Movement", tabName = "HeadMovement", icon = icon("glyphicon glyphicon-user", lib = "glyphicon")),
+      menuItem(" Left Hand Movement", tabName = "LeftHandMovement", icon = icon("hand-point-left")),
+      menuItem(" Metrics", tabName = "Metrics", icon = icon("clipboard")),
+      menuItem(" Quiz", tabName = "Quiz", icon = icon("feather"))
+      
+    )
+  ),
+  dashboardBody(
+    tabItems(
+      # First tab content
+      tabItem(tabName = "dashboard",
+              fluidRow(
+                box( width = 12, background = "navy",
+                h1(
+                  "This is the Home/Dashboard Page."
+                )
+                ),
+                box( width = 12, background = "blue",
+                  h2(
+                    "Navigate to other pages with the sidebar on the left"
+                    )
+                  ),
+                
+                box( width = 12, background = "light-blue",
+                  h3(
+                    "Only use the respective .csv files for their specific tab"
+                  )
+                ),
+              )), 
+
+      # Second tab content - Right Hand Movement
+      tabItem(tabName = "RightHandMovement",
+              h2("Right Hand Movement tab content"),
+              
+              #Row 
+              # with File Input and Mean,STD, and Var
+              fluidRow(
+                
+                box( title = "File Input Here", width = 6, status = "primary",
+                  fileInput("data_f", "Upload data", accept = ".csv")),
+                
+                box( title = "Mean, Standard Deviation, and Variance", width = 6, status = "info",
+                  tableOutput("out_Mean_Test"),
+                  tableOutput("out_std_Test"),
+                  tableOutput("out_var_Test")
+                  )),
+              
+              #Row 
+              # with 3D representation
+              fluidRow(
+                
+                box( title = "Position graph based on time", width = 12, status = "info",
+                  plotlyOutput("out_data_f5")),
+                mainPanel(
+                  
+                )
+              ),
+              
+              #Row
+              # with data Table Output and File Meta Data
+              fluidRow(
+              box( width = 12, status = "info",
+                title = "Right Hand Movement input Table: ",
+                collapsible = T,
+                fluidRow(tableOutput("out_data_f1"),
+                         dataTableOutput("out_data_f2"))
+                              ))), 
+      
+      #Third Tab Content - HMD / Camera Movement
+      tabItem(tabName = "HeadMovement",
+              h2("Head Movement tab content"),
+              
+              #Row
+              # with File Input and Mean,STD, and Var
+              fluidRow(
+                box( title = "File Input Here", width = 6, status = "primary",
+                fileInput("data_HMD", "Upload data", accept = ".csv"),
+                ),
+                
+                box( title = "Mean, Standard Deviation, and Variance", width = 6, status = "info",
+                  tableOutput("out_Mean_HMD"),
+                  tableOutput("out_std_HMD"),
+                  tableOutput("out_var_HMD")
+                  )
+              ),
+              
+              #Row
+              # with 3D representation
+              fluidRow(
+                box(title = "Position graph based on time", width = 12, status = "info",
+                    plotlyOutput("out_data_HMDPlot")
+                    )
+              ),
+              
+              #Row
+              # with data Table Output and File Meta Data
+              fluidRow(
+                box(
+                  width = 12,
+                  title = "HMD / Camera Movement input Table: ", status = "info",
+                  collapsible = T,
+                  fluidRow(
+                    tableOutput("out_data_HMD_Meta"),
+                    dataTableOutput("out_data_HMD_DT"))
+                  
+                )
+              )
+              ), 
+      #Fourth Tab Content - Left Hand Movement
+      tabItem(tabName = "LeftHandMovement",
+        h2("Left Hand Movement tab content"),
+        
+              #Row 
+              # with File Input and Mean,STD, and Var
+              fluidRow(
+                
+                box( title = "File Input Here", width = 6, status = "primary",
+                  fileInput("data_Left", "Upload data", accept = ".csv")),
+                
+                box( title = "Mean, Standard Deviation, and Variance", width = 6, status = "info",
+                  tableOutput("out_Mean_LeftHand"),
+                  tableOutput("out_std_LeftHand"),
+                  tableOutput("out_var_LeftHand")
+                  )),
+              
+              #Row 
+              # with 3D representation
+              fluidRow(
+                
+                box( title = "Position graph based on time", width = 12, status = "info",
+                  plotlyOutput("out_data_LeftHand3D")),
+                mainPanel(
+                )
+              ),
+              
+              #Row
+              # with data Table Output and File Meta Data
+              fluidRow(
+              box( width = 12,
+                title = "Left Hand Movement input Table: ",
+                collapsible = T, status = "info",
+                fluidRow(tableOutput("out_data_Left_Meta"),
+                         dataTableOutput("out_data_Left_DT"))
+                
+              ))
+      ),
+      
+      #Fifth Tab Content - Metrics Results
+      tabItem(tabName = "Metrics",
+        h2("Metrics tab content"),
+        
+        #Row
+        # with File Input 
+        fluidRow(
+          box(
+            title = "File Input Here",
+            width = 4, status = "primary",
+            fileInput("data_Metrics", "Upload data", accept = ".csv")
+          ),
+          
+          box(
+            title = "Metrics Score:",
+            width = 8, status = "info",
+            tableOutput("out_data_Metrics_Table")
+          )
+        ), 
+        fluidRow(
+          box( title = "Things to work on", width = 6, background = "orange",
+            tableOutput("out_data_Metrics_WorkOnTable")
+          )
+        )
+      ),
+      
+      #Sixth Tab Content - Quiz Results
+      tabItem(tabName = "Quiz",
+              h2("Quiz tab content"),
+              #Row
+              # with File Input
+              fluidRow(
+                box(
+                  title = "File Input Here",
+                  width = 4, status = "primary",
+                  fileInput("data_Quiz", "Upload data", accept = ".csv")
+                ),
+                box(
+                  title = "Quiz Score:",
+                  width = 8, status = "info",
+                  tableOutput("out_data_Quiz_Table")
+                )
+              ),
+              fluidRow(
+                box(
+                  title = "Right vs. Wrong",
+                  width = 6, status = "info",
+                  plotlyOutput("out_data_Quiz_Pie")
+                ),
+                
+                  title = "Quiz %",
+                  width = 6,
+                  valueBoxOutput("out_data_Quiz_VB")
+                  
+              ))
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+###
+# Right Hand Movement
+###
+  
+  
+  #outputting the meta data of selected file
+  output$out_data_f1 <- renderTable({
+      if(is.null(input$data_f)) {return()}
+      else{
+        input$data_f
+      }
+    })
+    
+    
+  # Made a DataTable to better visualize data
+    data_file <- reactive({
+            if(is.null(input$data_f)) {return()}
+      else{
+        file_spec <- input$data_f
+
+        #If header = T, it will skip the first line to not include words in the list
+        #Keep it F since there are no headers on the data collected
+        #sep will stay "," since I only have .csv files
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set and renaming for readability
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 0)
+        
+        aa <- datatable(aa, options = list(scrollX = T, scrollY = "250px"))
+        return(aa)
+      }
+    })
+    
+    #3D plot Testing
+    plotIn3D <- reactive({
+            if(is.null(input$data_f)) {return()}
+      else{
+        file_spec <- input$data_f
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 0)
+          
+        
+        plot_ly(aa, x = aa[,2], y = aa[,3], z = aa[,4]) %>%
+          add_markers(color = aa[,1], title = "Time")
+      }
+    })
+    
+    
+    #Doing the Mean Table
+    returnMean <- reactive({
+            if(is.null(input$data_f)) {return()}
+      else{
+        file_spec <- input$data_f
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        
+        aa <- subset(aa, V3 > 0)
+        
+        colNames <- c("X_Mean", "Y_Mean", "Z_Mean")
+        fillings <- c(mean(aa[,2]),mean(aa[,3]),mean(aa[,4]))
+        
+        
+        meanMatrix <- rbind(colNames, fillings)
+        
+        names(meanMatrix)[names(meanMatrix) == "V1"] <- "X_Mean"
+        names(meanMatrix)[names(meanMatrix) == "V2"] <- "Y_Mean"
+        names(meanMatrix)[names(meanMatrix) == "V3"] <- "Z_Mean"
+        
+        return(meanMatrix)
+      }
+    })
+    
+    #Doing the Standard Deviation Table
+    returnSTDev <- reactive({
+            if(is.null(input$data_f)) {return()}
+      else{
+        file_spec <- input$data_f
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 0)
+        
+        colNames <- c("X_STD", "Y_STD", "Z_STD")
+        fillings <- c(sd(aa[,2]),sd(aa[,3]),sd(aa[,4]))
+        
+        stdMatrix <- rbind(colNames, fillings)
+        
+        return(stdMatrix)
+      }
+    })
+    
+    #Doing the Variance Table
+    returnVariance <- reactive({
+            if(is.null(input$data_f)) {return()}
+      else{
+        file_spec <- input$data_f
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 0)
+        
+        colNames <- c("X_Var", "Y_Var", "Z_Var")
+        fillings <- c(var(aa[,2]),var(aa[,3]),var(aa[,4]))
+        
+        varMatrix <- rbind(colNames, fillings)
+        
+        return(varMatrix)
+      }
+    })
+    
+###
+# HMD
+###
+    
+    
+    #outputting the meta data of selected file
+    output$out_data_HMD_Meta <- renderTable({
+      if (is.null(input$data_HMD)) {
+        return()
+      }
+      else{
+        input$data_HMD
+      }
+    })
+    #Doing the Mean Table for HMD
+    returnMean_HMD <- reactive({
+            if(is.null(input$data_HMD)) {return()}
+      else{
+        file_spec <- input$data_HMD
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        
+        colNames <- c("X_Mean", "Y_Mean", "Z_Mean")
+        fillings <- c(mean(aa[,2]),mean(aa[,3]),mean(aa[,4]))
+        
+        
+        meanMatrix <- rbind(colNames, fillings)
+        
+        names(meanMatrix)[names(meanMatrix) == "V1"] <- "X_Mean"
+        names(meanMatrix)[names(meanMatrix) == "V2"] <- "Y_Mean"
+        names(meanMatrix)[names(meanMatrix) == "V3"] <- "Z_Mean"
+        
+        return(meanMatrix)
+      }
+    })
+    
+    #Doing the Standard Deviation Table
+    returnSTDev_HMD <- reactive({
+            if(is.null(input$data_HMD)) {return()}
+      else{
+        file_spec <- input$data_HMD
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+
+        colNames <- c("X_STD", "Y_STD", "Z_STD")
+        fillings <- c(sd(aa[,2]),sd(aa[,3]),sd(aa[,4]))
+        
+        stdMatrix <- rbind(colNames, fillings)
+        
+        return(stdMatrix)
+      }
+    })
+    
+    #Doing the Variance Table
+    returnVariance_HMD <- reactive({
+            if(is.null(input$data_HMD)) {return()}
+      else{
+        file_spec <- input$data_HMD
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+
+        colNames <- c("X_Var", "Y_Var", "Z_Var")
+        fillings <- c(var(aa[,2]),var(aa[,3]),var(aa[,4]))
+        
+        varMatrix <- rbind(colNames, fillings)
+        
+        return(varMatrix)
+      }
+    })
+    
+    # Made a DataTable to better visualize data
+    data_file_HMD <- reactive({
+            if(is.null(input$data_HMD)) {return()}
+      else{
+        file_spec <- input$data_HMD
+
+        #If header = T, it will skip the first line to not include words in the list
+        #Keep it F since there are no headers on the data collected
+        #sep will stay "," since I only have .csv files
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set and renaming for readability
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+
+        aa <- datatable(aa, options = list(scrollX = T, scrollY = "250px"))
+        return(aa)
+        #return(datatable(aa, options = list(scrollX = T, scrollY = "250px")))
+      }
+    })
+    
+    
+    #3D plotting Head Mounted Display
+    plotIn3D_HMD <- reactive({
+            if(is.null(input$data_HMD)) {return()}
+      else{
+        file_spec <- input$data_HMD
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+
+        plot_ly(aa, x = aa[,2], y = aa[,3], z = aa[,4]) %>%
+          add_markers(color = aa[,1], title = "Time")
+      }
+    })
+    
+###
+# Left Hand
+###
+    
+  
+  #outputting the meta data of selected file
+  output$out_data_Left_Meta <- renderTable({
+      if(is.null(input$data_Left)) {return()}
+      else{
+        input$data_Left
+      }
+    })
+    
+    
+  # Made a DataTable to better visualize data
+    data_file_Left <- reactive({
+            if(is.null(input$data_Left)) {return()}
+      else{
+        file_spec <- input$data_Left
+
+        #If header = T, it will skip the first line to not include words in the list
+        #Keep it F since there are no headers on the data collected
+        #sep will stay "," since I only have .csv files
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set and renaming for readability
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 5.95)
+        
+        aa <- datatable(aa, options = list(scrollX = T, scrollY = "250px"))
+        return(aa)
+      }
+    })
+    
+    #3D plot Testing
+    plotIn3D_Left <- reactive({
+            if(is.null(input$data_Left)) {return()}
+      else{
+        file_spec <- input$data_Left
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 5.95)
+          
+        
+        plot_ly(aa, x = aa[,2], y = aa[,3], z = aa[,4]) %>%
+          add_markers(color = aa[,1], title = "Time")
+      }
+    })
+    
+    
+    #Doing the Mean Table
+    returnMean_Left <- reactive({
+            if(is.null(input$data_Left)) {return()}
+      else{
+        file_spec <- input$data_Left
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        
+        aa <- subset(aa, V3 > 5.95)
+        
+        colNames <- c("X_Mean", "Y_Mean", "Z_Mean")
+        fillings <- c(mean(aa[,2]),mean(aa[,3]),mean(aa[,4]))
+        
+        
+        meanMatrix <- rbind(colNames, fillings)
+        
+        names(meanMatrix)[names(meanMatrix) == "V1"] <- "X_Mean"
+        names(meanMatrix)[names(meanMatrix) == "V2"] <- "Y_Mean"
+        names(meanMatrix)[names(meanMatrix) == "V3"] <- "Z_Mean"
+        
+        return(meanMatrix)
+      }
+    })
+    
+    #Doing the Standard Deviation Table
+    returnSTDev_Left <- reactive({
+            if(is.null(input$data_Left)) {return()}
+      else{
+        file_spec <- input$data_Left
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 0)
+        
+        colNames <- c("X_STD", "Y_STD", "Z_STD")
+        fillings <- c(sd(aa[,2]),sd(aa[,3]),sd(aa[,4]))
+        
+        stdMatrix <- rbind(colNames, fillings)
+        
+        return(stdMatrix)
+      }
+    })
+    
+    #Doing the Variance Table
+    returnVariance_Left <- reactive({
+            if(is.null(input$data_Left)) {return()}
+      else{
+        file_spec <- input$data_Left
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Cleaning the random Outliers from the data set
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "X_Pos"
+        names(aa)[names(aa) == "V3"] <- "Y_Pos"
+        names(aa)[names(aa) == "V4"] <- "Z_Pos"
+        names(aa)[names(aa) == "V5"] <- "X_Rot"
+        names(aa)[names(aa) == "V6"] <- "Y_Rot"
+        names(aa)[names(aa) == "V7"] <- "Z_Rot"
+        
+        aa <- subset(aa, Y_Pos > 0)
+        
+        colNames <- c("X_Var", "Y_Var", "Z_Var")
+        fillings <- c(var(aa[,2]),var(aa[,3]),var(aa[,4]))
+        
+        varMatrix <- rbind(colNames, fillings)
+        
+        return(varMatrix)
+      }
+    })
+    
+    
+###
+# Metrics
+###
+    
+      # Made a DataTable to better visualize data
+    data_Metrics_Table <- reactive({
+            if(is.null(input$data_Metrics)) {return()}
+      else{
+        file_spec <- input$data_Metrics
+
+        #If header = T, it will skip the first line to not include words in the list
+        #Keep it F since there are no headers on the data collected
+        #sep will stay "," since I only have .csv files
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "Metric Number"
+        names(aa)[names(aa) == "V3"] <- "Score"
+        
+        return(aa)
+      }
+    })
+    
+    out_data_Metrics_WorkOnTable <- reactive({
+            if(is.null(input$data_Metrics)) {return()}
+      else{
+        file_spec <- input$data_Metrics
+
+        #If header = T, it will skip the first line to not include words in the list
+        #Keep it F since there are no headers on the data collected
+        #sep will stay "," since I only have .csv files
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        names(aa)[names(aa) == "V1"] <- "Time"
+        names(aa)[names(aa) == "V2"] <- "Metric Number"
+        names(aa)[names(aa) == "V3"] <- "Score"
+        
+        WO <- c()
+        
+        for (num in 1:nrow(aa)) {
+          if(aa[num,3] < 5){
+            WO <- aa[num,]
+          }
+        }
+        
+        return(WO)
+      }
+    })
+    
+    
+    
+    
+###
+# Quiz
+###
+    
+      # Made a DataTable to better visualize data
+    data_Quiz_Table <- reactive({
+            if(is.null(input$data_Quiz)) {return()}
+      else{
+        file_spec <- input$data_Quiz
+
+        #If header = T, it will skip the first line to not include words in the list
+        #Keep it F since there are no headers on the data collected
+        #sep will stay "," since I only have .csv files
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        names(aa)[names(aa) == "V1"] <- "Step Number"
+        names(aa)[names(aa) == "V2"] <- "Correct or Incorrect"
+
+        return(aa)
+      }
+    })
+    
+    
+    
+    #3D plot Testing
+    Quiz_PieChart <- reactive({
+            if(is.null(input$data_Quiz)) {return()}
+      else{
+        file_spec <- input$data_Quiz
+
+        aa<- read.table(file_spec$datapath, header = F, sep = ",")
+        
+        #Take out the final row that is the %
+         aa <- aa[1:(nrow(aa)-1),]
+         Ccounter <- 0
+         Wcounter <- 0
+         
+         for (num in 1:(nrow(aa)-1)) {
+           if(aa[num,2] == T || aa[num,2] == 1 || aa[num,2] == "TRUE"){
+             Ccounter <- Ccounter+1
+           }else if(aa[num,2] == F || aa[num,2] == 0 || aa[num,2] == "FALSE"){
+             Wcounter <- Wcounter + 1
+           }
+         } 
+         CNames <- c("Correct", "Incorrect")
+         scores <- c(Ccounter, Wcounter)
+         
+         
+         fig <-
+           plot_ly(
+             x = CNames,
+             y = scores,
+             type = "bar",
+             base = 0,
+             
+             name = c("Correct", "Incorrect"),color = CNames, colors = c("#0B6623", "#800000")
+           )
+         
+        return(fig)
+      }
+    })
+    
+    Quiz_ValueBox <- reactive({
+      if(is.null(input$data_Quiz)) {return()}
+      else{
+        file_spec <- input$data_Quiz
+        
+        QB<- read.table(file_spec$datapath, header = F, sep = ",")
+
+        QB <- QB[nrow(QB),1]
+        
+        return(valueBox(
+          QB, subtitle = "Quiz Grade", icon = icon("percent"), color = "teal"
+        ))
+      }
+      
+    })
+    
+    
+    
+###########
+    
+    #Outputs to place onto an output object
+    
+      output$out_data_f2 <- renderDataTable({
+                    if(is.null(input$data_f)) {return()}
+        else{
+          data_file()
+        }
+
+      })
+      
+      
+      
+      output$out_data_f5 <- renderPlotly({
+        if(is.null(input$data_f)) {return()}
+           else{
+             plotIn3D()
+           }
+      })
+      
+        
+      output$out_Mean_Test <- renderTable({
+        if(is.null(input$data_f)) {return()}
+           else{
+             returnMean()
+           }
+      })
+        
+        
+      output$out_std_Test <- renderTable({
+        if(is.null(input$data_f)) {return()}
+           else{
+             returnSTDev()
+           }
+      })
+        
+        
+      output$out_var_Test <- renderTable({
+        if(is.null(input$data_f)) {return()}
+           else{
+             returnVariance()
+           }
+      })
+        
+###
+# HMD
+###
+      #mean Output
+      output$out_Mean_HMD <- renderTable({
+        if(is.null(input$data_HMD)) {return()}
+           else{
+             returnMean_HMD()
+           }
+      })
+        
+      #STD Output  
+      output$out_std_HMD <- renderTable({
+        if(is.null(input$data_HMD)) {return()}
+           else{
+             returnSTDev_HMD()
+           }
+      })
+        
+      #Variance Output  
+      output$out_var_HMD <- renderTable({
+        if(is.null(input$data_HMD)) {return()}
+           else{
+             returnVariance_HMD()
+           }
+      })
+      
+      #DataTable Output
+      output$out_data_HMD_DT <- renderDataTable({
+        if(is.null(input$data_HMD)) {return()}
+           else{
+             data_file_HMD()
+           }
+      })
+      
+      #3D Plot
+      output$out_data_HMDPlot <- renderPlotly({
+        if(is.null(input$data_HMD)) {return()}
+           else{
+             plotIn3D_HMD()
+           }
+      })
+      
+###
+# Left Hand Movement
+###
+      
+#mean Output
+      output$out_Mean_LeftHand <- renderTable({
+        if(is.null(input$data_Left)) {return()}
+           else{
+             returnMean_Left()
+           }
+      })
+        
+      #STD Output  
+      output$out_std_LeftHand <- renderTable({
+        if(is.null(input$data_Left)) {return()}
+           else{
+             returnSTDev_Left()
+           }
+      })
+        
+      #Variance Output  
+      output$out_var_LeftHand <- renderTable({
+        if(is.null(input$data_Left)) {return()}
+           else{
+             returnVariance_Left()
+           }
+      })
+      
+      #DataTable Output
+      output$out_data_Left_DT <- renderDataTable({
+        if(is.null(input$data_Left)) {return()}
+           else{
+             data_file_Left()
+           }
+      })
+      
+      #3D Plot
+      output$out_data_LeftHand3D <- renderPlotly({
+        if(is.null(input$data_Left)) {return()}
+           else{
+             plotIn3D_Left()
+           }
+      })
+
+###
+# Metrics
+###
+      
+      #Table Output
+      output$out_data_Metrics_Table <- renderTable({
+        if (is.null(input$data_Metrics)) {
+          return()
+        }
+        else{
+          data_Metrics_Table()
+        }
+      })
+      
+      #Table Output
+      output$out_data_Metrics_WorkOnTable <- renderTable({
+        if (is.null(input$data_Metrics)) {
+          return()
+        }
+        else{
+          out_data_Metrics_WorkOnTable()
+        }
+      })
+  
+###
+# Quiz
+###
+      #Table Output
+      output$out_data_Quiz_Table <- renderTable({
+        if (is.null(input$data_Quiz)) {
+          return()
+        }
+        else{
+          data_Quiz_Table()
+        }
+      })
+      
+      #Pie Chart Output
+      output$out_data_Quiz_Pie <- renderPlotly({
+        if (is.null(input$data_Quiz)) {
+          return()
+        }
+        else{
+          Quiz_PieChart()
+        }
+      })
+      
+      #Value Box Output
+      output$out_data_Quiz_VB <- renderValueBox({
+        if (is.null(input$data_Quiz)) {
+          return()
+        }
+        else{
+          Quiz_ValueBox()
+          # file_spec <- input$data_Quiz
+          # 
+          # ghgg <- read.table(file_spec$datapath, header = F, sep = ",")
+          # 
+          # ghgg <- ghgg[nrow(ghgg), 1]
+          # 
+          # valueBox(ghgg, subtitle = "Quiz Grade", icon = icon("List"), color = "purple")
+        }
+      })
+      
+      
+      
+      
+      
+}
+
+shinyApp(ui, server)
+```
+
+
